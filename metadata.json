@@ -1,0 +1,6 @@
+{
+  "name": "TNOC Medical Diagnostic Facility",
+  "description": "Official portal for TNOC Medical Diagnostic Facility – TNOC Diagnostics (Maabara ya Msamvu), providing reliable clinical laboratory investigations and diagnostic imaging in Msamvu, Morogoro, Tanzania (GPS: -6.802722, 37.661222).",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
