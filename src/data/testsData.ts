@@ -1115,6 +1115,8 @@ export const WHY_CHOOSE_TNOC = [
   },
 ];
 
+export const WHY_CHOOSE_US_ITEMS = WHY_CHOOSE_TNOC;
+
 // Facility gallery showcasing verified TNOC Medical Diagnostic Facility photos
 export const FACILITY_GALLERY: GalleryPhoto[] = [
   {

@@ -39,8 +39,11 @@ export function getActiveFrontPhoto(): GalleryPhoto {
   } catch (e) {
     console.error('Failed to get active front photo ID', e);
   }
-  // Default to the original facility photo or the first photo
-  return allPhotos[0] || FACILITY_GALLERY[0];
+  // Default to the Daytime Exterior facility photo ('gal-facility-day')
+  const daytimePhoto = allPhotos.find(
+    (p) => p.id === 'gal-facility-day' || p.category === 'Daytime Exterior'
+  );
+  return daytimePhoto || allPhotos[0] || FACILITY_GALLERY[0];
 }
 
 /**

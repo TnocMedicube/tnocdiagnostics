@@ -1,10 +1,19 @@
 import React from 'react';
 import { Phone, MessageCircle, Navigation, MapPin } from 'lucide-react';
-import { TNOC_BUSINESS_CONFIG } from '../config/businessConfig';
+import { useCms } from '../context/CmsContext';
+import { useRouter } from '../router/RouterContext';
 
 export const FloatingMobileBar: React.FC = () => {
-  const hasPhone = Boolean(TNOC_BUSINESS_CONFIG.phoneRaw);
-  const hasWhatsApp = Boolean(TNOC_BUSINESS_CONFIG.whatsappRaw);
+  const { businessConfig } = useCms();
+  const { currentPath } = useRouter();
+
+  // Hide bar on the Admin portal
+  if (currentPath.startsWith('/admin')) {
+    return null;
+  }
+
+  const hasPhone = Boolean(businessConfig.phoneRaw);
+  const hasWhatsApp = Boolean(businessConfig.whatsappRaw);
 
   return (
     <div
@@ -17,8 +26,8 @@ export const FloatingMobileBar: React.FC = () => {
         {/* Call Action */}
         {hasPhone ? (
           <a
-            href={`tel:${TNOC_BUSINESS_CONFIG.phoneRaw}`}
-            className="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-blue-900 active:bg-blue-950 text-white min-h-[46px] shadow-sm transition-colors border border-blue-800"
+            href={`tel:${businessConfig.phoneRaw}`}
+            className="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-blue-700 active:bg-blue-800 text-white min-h-[46px] shadow-sm transition-colors border border-blue-600"
             aria-label="Call TNOC Diagnostics"
           >
             <Phone className="w-4 h-4 mb-0.5 text-white" />
@@ -26,7 +35,7 @@ export const FloatingMobileBar: React.FC = () => {
           </a>
         ) : (
           <a
-            href="#contact"
+            href="/contact"
             className="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-slate-900 text-slate-200 min-h-[46px] transition-colors border border-white/10"
             aria-label="View Contact Information"
           >
@@ -38,7 +47,7 @@ export const FloatingMobileBar: React.FC = () => {
         {/* WhatsApp Action */}
         {hasWhatsApp ? (
           <a
-            href={`https://wa.me/${TNOC_BUSINESS_CONFIG.whatsappRaw}?text=${encodeURIComponent(
+            href={`https://wa.me/${businessConfig.whatsappRaw}?text=${encodeURIComponent(
               'Hello TNOC Diagnostics (Maabara ya Msamvu), I would like to inquire about tests.'
             )}`}
             target="_blank"
@@ -51,7 +60,7 @@ export const FloatingMobileBar: React.FC = () => {
           </a>
         ) : (
           <a
-            href="#contact"
+            href="/contact"
             className="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-slate-900 text-slate-200 min-h-[46px] transition-colors border border-white/10"
             aria-label="Send Inquiry"
           >
@@ -60,16 +69,16 @@ export const FloatingMobileBar: React.FC = () => {
           </a>
         )}
 
-        {/* Google Maps / Directions Action */}
+        {/* Directions Action */}
         <a
-          href={TNOC_BUSINESS_CONFIG.googleMapsDirectionsUrl}
+          href={businessConfig.googleMapsDirectionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-red-600 active:bg-red-700 text-white min-h-[46px] font-bold shadow-md shadow-red-600/30 transition-all border border-red-500"
-          aria-label="Get Directions in Google Maps"
+          className="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-red-600 active:bg-red-700 text-white min-h-[46px] shadow-sm transition-colors"
+          aria-label="Navigate via Google Maps"
         >
           <Navigation className="w-4 h-4 mb-0.5" />
-          <span className="text-[11px] font-extrabold tracking-tight">MAP / GO</span>
+          <span className="text-[11px] font-bold tracking-tight">DIRECTIONS</span>
         </a>
       </div>
     </div>

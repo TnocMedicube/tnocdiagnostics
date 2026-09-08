@@ -33,3 +33,34 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Cinematic Ken Burns Video Photography Animations */
+@keyframes kenburns-slow {
+  0% {
+    transform: scale(1.02) translate(0%, 0%);
+  }
+  50% {
+    transform: scale(1.10) translate(-1.5%, -1%);
+  }
+  100% {
+    transform: scale(1.15) translate(1.5%, 0.8%);
+  }
+}
+
+.animate-kenburns {
+  animation: kenburns-slow 14s ease-in-out infinite alternate;
+}
+
+@keyframes progress-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress-fill linear;
+}
+

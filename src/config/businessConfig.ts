@@ -24,15 +24,25 @@ export const TNOC_BUSINESS_CONFIG: BusinessConfig = {
   description:
     'Professional diagnostic laboratory and medical imaging investigations facility dedicated to clinical accuracy, timely results, patient confidentiality, and compassionate care.',
 
-  // Verification status flags
-  // Set to true once you paste your verified telephone or whatsapp numbers:
-  phone: '[Phone Number Pending Verification]',
-  phoneRaw: '', // e.g. '+255700000000' (leave empty until verified)
+  // Verified Primary Contact Channels (Director & Facility Desk)
+  phone: '0741 405 988',
+  phoneRaw: '+255741405988',
 
-  whatsapp: '[WhatsApp Number Pending Verification]',
-  whatsappRaw: '', // e.g. '255700000000' (leave empty until verified)
+  whatsapp: '0741 405 988',
+  whatsappRaw: '255741405988',
 
-  email: 'info@tnocdiagnostics.co.tz', // Replace with verified business email
+  email: 'drmonasser04@gmail.com',
+  secondaryEmail: 'tnocmedicube@gmail.com',
+
+  // Director of TNOC Diagnostics
+  directorName: 'Dr. Monasser',
+  directorTitle: 'Director of TNOC Diagnostics',
+  directorPhone: '0741 405 988',
+  directorPhoneRaw: '+255741405988',
+  directorWhatsapp: '0741 405 988',
+  directorWhatsappRaw: '255741405988',
+  directorEmail: 'drmonasser04@gmail.com',
+  directorEmails: ['drmonasser04@gmail.com', 'tnocmedicube@gmail.com'],
 
   // Location Details (Verified locality: Msamvu, Morogoro, Tanzania)
   address: 'Msamvu Area, Morogoro, Tanzania',
@@ -72,7 +82,7 @@ export const TNOC_BUSINESS_CONFIG: BusinessConfig = {
   logoPath: '/logo.png',
   logoSvgPath: '/logo.svg',
   logoFallbackPath: '/assets/logo.png',
-  officePhotoPath: '/assets/office-photo.jpg',
+  officePhotoPath: '/assets/tnoc_facility_day.jpg',
   labPhotoPath: '/assets/tnoc-laboratory.jpg',
   logoPlaceholderText: 'TNOC DIAGNOSTICS',
 };

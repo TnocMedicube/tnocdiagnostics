@@ -18,10 +18,17 @@ import {
   CheckCircle2,
   X,
   Filter,
+  Plus,
+  Edit2,
+  Trash2,
+  Shield,
+  Lock,
 } from 'lucide-react';
-import { LAB_CATEGORIES, ALL_LAB_TESTS } from '../data/testsData';
+import { LAB_CATEGORIES } from '../data/testsData';
 import { LabTest, TestCategoryType } from '../types';
 import { TestDetailModal } from './TestDetailModal';
+import { EditServiceModal } from './EditServiceModal';
+import { useAdmin } from '../context/AdminContext';
 
 interface LabTestsSectionProps {
   onSelectTestForInquiry?: (test: LabTest) => void;
@@ -43,15 +50,18 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
 export const LabTestsSection: React.FC<LabTestsSectionProps> = ({
   onSelectTestForInquiry,
 }) => {
+  const { isAdmin, labTests, deleteLabTest, openLoginModal, openDashboard } = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSampleType, setSelectedSampleType] = useState<string>('all');
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>('hematology');
   const [activeModalTest, setActiveModalTest] = useState<LabTest | null>(null);
+  const [editingTest, setEditingTest] = useState<LabTest | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Filter tests dynamically based on search, category, and sample type
   const filteredTests = useMemo(() => {
-    return ALL_LAB_TESTS.filter((test) => {
+    return labTests.filter((test) => {
       const q = searchQuery.toLowerCase().trim();
       let matchesSearch = true;
 
@@ -100,7 +110,7 @@ export const LabTestsSection: React.FC<LabTestsSectionProps> = ({
 
       return matchesSearch && matchesCategory && matchesSample;
     });
-  }, [searchQuery, selectedCategory, selectedSampleType]);
+  }, [labTests, searchQuery, selectedCategory, selectedSampleType]);
 
   // Group tests by category for category view
   const testsByCategory = useMemo(() => {
@@ -153,6 +163,45 @@ export const LabTestsSection: React.FC<LabTestsSectionProps> = ({
           <p className="text-base sm:text-lg text-slate-600 mt-2 leading-relaxed">
             Organized across 10 specialized laboratory disciplines. Search tests, review sample guidelines, or explore clinical parameter details.
           </p>
+
+          {/* Admin Management Action Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+            {isAdmin ? (
+              <>
+                <button
+                  type="button"
+                  id="admin-add-lab-test-btn"
+                  onClick={() => {
+                    setEditingTest(null);
+                    setIsAddModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all hover:scale-105"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Laboratory Test</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openDashboard('tests')}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold shadow-sm transition-colors"
+                >
+                  <Shield className="w-3.5 h-3.5 text-red-400" />
+                  <span>Open Lab Catalog Manager</span>
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() =>
+                  openLoginModal('Log in as administrator to add, edit, or customize laboratory investigations.')
+                }
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium border border-slate-200 transition-colors"
+              >
+                <Lock className="w-3 h-3 text-red-600" />
+                <span>Admin: Manage Lab Tests</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Interactive Search & Filter Box */}
@@ -196,7 +245,7 @@ export const LabTestsSection: React.FC<LabTestsSectionProps> = ({
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                All Categories ({ALL_LAB_TESTS.length})
+                All Categories ({labTests.length})
               </button>
               {LAB_CATEGORIES.map((cat) => (
                 <button
@@ -410,14 +459,41 @@ export const LabTestsSection: React.FC<LabTestsSectionProps> = ({
                               <span>{test.turnaroundTime.split('(')[0]}</span>
                             </span>
 
-                            <button
-                              type="button"
-                              onClick={() => setActiveModalTest(test)}
-                              className="text-xs font-bold text-blue-700 hover:text-red-600 hover:underline flex items-center gap-1 transition-colors"
-                            >
-                              <span>Details</span>
-                              <Info className="w-3 h-3 text-red-500" />
-                            </button>
+                            <div className="flex items-center gap-1.5">
+                              {isAdmin && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingTest(test)}
+                                    title={`Admin: Edit ${test.name}`}
+                                    className="p-1 rounded-md bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-900 transition-colors"
+                                  >
+                                    <Edit2 className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (window.confirm(`Delete laboratory test "${test.name}"?`)) {
+                                        deleteLabTest(test.id);
+                                      }
+                                    }}
+                                    title={`Admin: Delete ${test.name}`}
+                                    className="p-1 rounded-md bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 transition-colors"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => setActiveModalTest(test)}
+                                className="text-xs font-bold text-blue-700 hover:text-red-600 hover:underline flex items-center gap-1 transition-colors"
+                              >
+                                <span>Details</span>
+                                <Info className="w-3 h-3 text-red-500" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -460,6 +536,19 @@ export const LabTestsSection: React.FC<LabTestsSectionProps> = ({
           test={activeModalTest}
           onClose={() => setActiveModalTest(null)}
           onSelectForInquiry={onSelectTestForInquiry}
+        />
+      )}
+
+      {/* Admin Add / Edit Test Modal */}
+      {(isAddModalOpen || editingTest !== null) && (
+        <EditServiceModal
+          isOpen={isAddModalOpen || editingTest !== null}
+          onClose={() => {
+            setIsAddModalOpen(false);
+            setEditingTest(null);
+          }}
+          type="test"
+          initialTest={editingTest}
         />
       )}
     </section>

@@ -14,9 +14,13 @@ import {
   AlertTriangle,
   Check,
   Image as ImageIcon,
+  Sparkles,
+  SlidersHorizontal,
+  Lock,
+  Shield,
 } from 'lucide-react';
-import { FACILITY_GALLERY } from '../data/testsData';
 import { GalleryPhoto } from '../types';
+import { useAdmin } from '../context/AdminContext';
 
 const STORAGE_KEY = 'tnoc_facility_gallery_photos_v2';
 
@@ -57,25 +61,38 @@ const compressImage = (file: File, maxWidth = 1400, maxHeight = 1000, quality = 
 };
 
 export const FacilityGallery: React.FC = () => {
-  // Load photos from localStorage or fallback to default
-  const [photos, setPhotos] = useState<GalleryPhoto[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.error('Failed to load gallery photos from localStorage', e);
-    }
-    return FACILITY_GALLERY;
-  });
+  const {
+    isAdmin,
+    openLoginModal,
+    openDashboard,
+    galleryPhotos: photos,
+    addGalleryPhoto,
+    deleteGalleryPhoto,
+    resetGalleryPhotos,
+    setFrontHeroPhoto,
+    activeFrontPhotoId,
+  } = useAdmin();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const [galleryToast, setGalleryToast] = useState<string | null>(null);
+
+  const handleSetAsFrontPhoto = (photo: GalleryPhoto, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    if (!isAdmin) {
+      openLoginModal('Administrator privileges required to change the front hero photograph.');
+      return;
+    }
+    setFrontHeroPhoto(photo);
+    setGalleryToast(`"${photo.title}" is now the front page hero photo!`);
+    setTimeout(() => {
+      setGalleryToast(null);
+    }, 3500);
+  };
 
   // Upload modal state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -92,15 +109,6 @@ export const FacilityGallery: React.FC = () => {
 
   // Photo removal confirmation state
   const [photoToDelete, setPhotoToDelete] = useState<GalleryPhoto | null>(null);
-
-  // Save changes to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
-    } catch (e) {
-      console.error('Failed to persist gallery photos to localStorage', e);
-    }
-  }, [photos]);
 
   const uniqueCategories = Array.from(new Set(photos.map((p) => p.category)));
   const categories = ['all', ...uniqueCategories];
@@ -202,8 +210,7 @@ export const FacilityGallery: React.FC = () => {
         ? customCategory.trim() || 'General Facility'
         : uploadCategory;
 
-    const newPhoto: GalleryPhoto = {
-      id: `gal-custom-${Date.now()}`,
+    addGalleryPhoto({
       title: finalTitle,
       category: finalCategory,
       description:
@@ -211,9 +218,8 @@ export const FacilityGallery: React.FC = () => {
         `Facility photograph of TNOC Medical Diagnostic Facility, ${finalCategory}.`,
       imageSrc: uploadImageSrc,
       fallbackGradient: 'from-blue-900 to-slate-950',
-    };
+    });
 
-    setPhotos((prev) => [newPhoto, ...prev]);
     setUploadSuccess(true);
     setTimeout(() => {
       setUploadSuccess(false);
@@ -231,12 +237,16 @@ export const FacilityGallery: React.FC = () => {
     if (e) {
       e.stopPropagation();
     }
+    if (!isAdmin) {
+      openLoginModal('Administrator privileges required to delete facility photographs.');
+      return;
+    }
     setPhotoToDelete(photo);
   };
 
   const executeDeletePhoto = () => {
     if (!photoToDelete) return;
-    setPhotos((prev) => prev.filter((p) => p.id !== photoToDelete.id));
+    deleteGalleryPhoto(photoToDelete.id);
     if (lightboxIndex !== null) {
       setLightboxIndex(null);
     }
@@ -245,13 +255,12 @@ export const FacilityGallery: React.FC = () => {
 
   // Reset to default factory photos
   const handleResetDefaults = () => {
+    if (!isAdmin) {
+      openLoginModal('Administrator privileges required to reset photographs.');
+      return;
+    }
     if (window.confirm('Reset gallery to the original default facility photographs?')) {
-      setPhotos(FACILITY_GALLERY);
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {
-        console.error(e);
-      }
+      resetGalleryPhotos();
       setSelectedCategory('all');
       setLightboxIndex(null);
     }
@@ -278,29 +287,53 @@ export const FacilityGallery: React.FC = () => {
             Authentic exterior, diagnostic laboratories, and patient entrance photography of TNOC Medical Diagnostic Facility in Msamvu, Morogoro.
           </p>
 
-          {/* Action Bar: Upload Button & Reset */}
+          {/* Action Bar: Upload Button & Reset (Solely for Admin) */}
           <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
-            <button
-              id="upload-facility-photo-btn"
-              onClick={() => {
-                setUploadError(null);
-                setIsUploadOpen(true);
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold text-sm shadow-sm hover:shadow transition-all"
-            >
-              <Upload className="w-4 h-4" />
-              <span>Upload Photo to Gallery</span>
-            </button>
+            {isAdmin ? (
+              <>
+                <button
+                  id="upload-facility-photo-btn"
+                  onClick={() => {
+                    setUploadError(null);
+                    setIsUploadOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all hover:scale-105"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Admin: Upload Photo to Gallery</span>
+                </button>
 
-            <button
-              id="reset-gallery-btn"
-              onClick={handleResetDefaults}
-              title="Reset to default facility photographs"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-              <span>Reset Defaults</span>
-            </button>
+                <button
+                  onClick={() => openDashboard('gallery')}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-xs font-semibold shadow-sm transition-colors"
+                >
+                  <Shield className="w-3.5 h-3.5 text-red-400" />
+                  <span>Manage Media in Portal</span>
+                </button>
+
+                <button
+                  id="reset-gallery-btn"
+                  onClick={handleResetDefaults}
+                  title="Reset to default facility photographs"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Reset Defaults</span>
+                </button>
+              </>
+            ) : (
+              <button
+                id="upload-facility-photo-restricted-btn"
+                onClick={() =>
+                  openLoginModal('Uploading or removing photographs is strictly restricted to clinic administrators.')
+                }
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs border border-slate-300 transition-all shadow-xs"
+                title="Admin permission required to upload photographs"
+              >
+                <Lock className="w-3.5 h-3.5 text-red-600" />
+                <span>Upload Photo (Admin Only)</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -342,23 +375,52 @@ export const FacilityGallery: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPhotos.map((photo, index) => {
               const isBroken = brokenImages[photo.id];
+              const isLoaded = loadedImages[photo.id];
+              const isFrontPhoto = photo.id === activeFrontPhotoId;
 
               return (
                 <div
                   key={photo.id}
                   onClick={() => openLightbox(index)}
-                  className="group relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col justify-end min-h-[260px] sm:min-h-[300px]"
+                  className="group relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col justify-end min-h-[280px] sm:min-h-[320px]"
                 >
-                  {/* Image or Clinical Preview Background */}
+                  {/* Skeleton Screen while image is loading */}
+                  {!isLoaded && !isBroken && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 flex flex-col justify-between p-5 z-0 animate-pulse">
+                      <div className="flex items-center justify-between">
+                        <div className="h-5 w-28 bg-slate-700/60 rounded-full" />
+                        <div className="h-5 w-16 bg-slate-700/50 rounded-full" />
+                      </div>
+                      <div className="flex flex-col items-center justify-center my-auto py-6">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-700/60 border border-slate-600/30 flex items-center justify-center text-slate-400 mb-3 shadow-inner">
+                          <ImageIcon className="w-6 h-6 text-slate-400" />
+                        </div>
+                        <div className="h-3 w-36 bg-slate-700/60 rounded-full mb-2" />
+                        <div className="h-2.5 w-24 bg-slate-700/40 rounded-full" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 w-3/4 bg-slate-700/70 rounded" />
+                        <div className="h-3 w-full bg-slate-700/50 rounded" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lazy-loaded Image */}
                   {!isBroken ? (
                     <img
                       src={photo.imageSrc}
                       alt={photo.title}
                       loading="lazy"
+                      decoding="async"
+                      onLoad={() =>
+                        setLoadedImages((prev) => ({ ...prev, [photo.id]: true }))
+                      }
                       onError={() =>
                         setBrokenImages((prev) => ({ ...prev, [photo.id]: true }))
                       }
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-0"
+                      className={`absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-500 z-0 ${
+                        isLoaded ? 'opacity-100' : 'opacity-0'
+                      }`}
                       referrerPolicy="no-referrer"
                     />
                   ) : (
@@ -383,34 +445,62 @@ export const FacilityGallery: React.FC = () => {
                   {/* Dark gradient overlay for readable caption text */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent z-10" />
 
-                  {/* Top Action Controls: Remove Button & Maximize Icon */}
-                  <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-none">
-                    {/* Delete / Remove Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => confirmDeletePhoto(photo, e)}
-                      title="Remove this photo from gallery"
-                      className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/80 hover:bg-red-600 border border-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105"
-                      aria-label={`Delete ${photo.title}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  {/* Top Action Controls: Front-photo badge/button, Remove & Maximize */}
+                  <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-none gap-2">
+                    {/* Left: Active Front Badge or "Set as Front" button */}
+                    <div className="pointer-events-auto flex items-center gap-1.5">
+                      {isFrontPhoto ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-600 text-white text-[11px] font-bold shadow-md ring-1 ring-white/40 backdrop-blur-sm">
+                          <Check className="w-3 h-3" />
+                          <span>Active Front</span>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => handleSetAsFrontPhoto(photo, e)}
+                          title="Set this photo to appear on the front page hero"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/85 hover:bg-blue-900 border border-white/25 text-white text-[11px] font-semibold transition-all shadow-sm opacity-90 hover:opacity-100 hover:scale-105 backdrop-blur-sm"
+                        >
+                          <SlidersHorizontal className="w-3 h-3 text-red-400" />
+                          <span>Set as Front</span>
+                        </button>
+                      )}
+                    </div>
 
-                    {/* Maximize Icon */}
-                    <div className="w-8 h-8 rounded-full bg-slate-900/60 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Maximize2 className="w-4 h-4" />
+                    {/* Right: Remove button (Admin only) & Maximize icon */}
+                    <div className="pointer-events-auto flex items-center gap-1.5">
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={(e) => confirmDeletePhoto(photo, e)}
+                          title="Admin: Remove this photo from gallery"
+                          className="w-8 h-8 rounded-full bg-slate-900/80 hover:bg-red-600 border border-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105"
+                          aria-label={`Delete ${photo.title}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+
+                      <div className="w-8 h-8 rounded-full bg-slate-900/60 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Maximize2 className="w-4 h-4" />
+                      </div>
                     </div>
                   </div>
 
                   {/* Caption Bar */}
                   <div className="relative z-20 p-5 text-left text-white">
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-600 text-white shadow-xs">
                         {photo.category}
                       </span>
                       <span className="text-[10px] font-bold text-blue-200 bg-blue-900/80 px-2 py-0.5 rounded">
                         Msamvu, Morogoro
                       </span>
+                      {isFrontPhoto && (
+                        <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded">
+                          ★ Front Page
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-base font-bold font-display text-white group-hover:text-red-300 transition-colors">
                       {photo.title}
@@ -450,12 +540,23 @@ export const FacilityGallery: React.FC = () => {
           </div>
         )}
 
-        {/* Verification Note */}
-        <div className="mt-8 p-4 rounded-xl bg-white border border-slate-200 flex items-center gap-3 text-xs text-slate-600 max-w-2xl mx-auto shadow-xs">
-          <Info className="w-4 h-4 text-red-600 shrink-0" />
-          <span>
-            <strong>Gallery Management:</strong> You can upload new photos or remove existing ones. All updates are preserved in your browser and will remain active across visits.
-          </span>
+        {/* Admin-Protected Gallery Notice */}
+        <div className="mt-8 p-4 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 max-w-2xl mx-auto shadow-xs">
+          <div className="flex items-center gap-3">
+            <Shield className="w-4 h-4 text-red-600 shrink-0" />
+            <span>
+              <strong>Admin-Protected Gallery:</strong> Adding, uploading, and removing photographs is strictly restricted to clinic administrators to maintain facility authenticity.
+            </span>
+          </div>
+          {!isAdmin && (
+            <button
+              type="button"
+              onClick={() => openLoginModal('Login to access administrator controls and manage photographs.')}
+              className="px-3 py-1 rounded-lg bg-blue-950 text-white text-[11px] font-semibold hover:bg-blue-900 shrink-0 transition-colors"
+            >
+              Admin Sign In
+            </button>
+          )}
         </div>
       </div>
 
@@ -718,16 +819,35 @@ export const FacilityGallery: React.FC = () => {
       {activePhoto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative max-w-4xl w-full flex flex-col items-center">
-            {/* Top Lightbox Bar: Delete & Close Controls */}
-            <div className="w-full flex items-center justify-between pb-3 text-white">
-              <button
-                onClick={() => confirmDeletePhoto(activePhoto)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold backdrop-blur-sm transition-colors"
-                title="Remove this photo"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Remove Photo</span>
-              </button>
+            {/* Top Lightbox Bar: Delete, Set as Front Photo & Close Controls */}
+            <div className="w-full flex items-center justify-between pb-3 text-white gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                {activePhoto.id === activeFrontPhotoId ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold shadow-sm">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Active on Front Page</span>
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleSetAsFrontPhoto(activePhoto)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-900/90 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold backdrop-blur-sm transition-all shadow-sm hover:scale-105"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-red-400" />
+                    <span>Set as Front Page Photo</span>
+                  </button>
+                )}
+
+                {isAdmin && (
+                  <button
+                    onClick={() => confirmDeletePhoto(activePhoto)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold backdrop-blur-sm transition-colors"
+                    title="Remove this photo"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove Photo</span>
+                  </button>
+                )}
+              </div>
 
               <button
                 onClick={closeLightbox}
@@ -791,6 +911,14 @@ export const FacilityGallery: React.FC = () => {
               <p className="text-xs sm:text-sm text-slate-300 mt-1">{activePhoto.description}</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Floating feedback toast for gallery actions */}
+      {galleryToast && (
+        <div className="fixed bottom-6 right-6 z-50 p-3.5 px-4 rounded-xl bg-blue-900 text-white border border-blue-400/50 shadow-xl flex items-center gap-2.5 text-xs font-semibold animate-in slide-in-from-bottom-5 duration-200">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{galleryToast}</span>
         </div>
       )}
     </section>

@@ -1,213 +1,167 @@
 import React from 'react';
 import {
-  Search,
   MapPin,
-  Phone,
-  MessageCircle,
-  ShieldCheck,
-  Clock,
-  Sparkles,
-  ArrowRight,
+  FileSpreadsheet,
   CheckCircle2,
+  Clock,
+  FlaskConical,
+  Activity,
+  ArrowRight,
 } from 'lucide-react';
-import { TNOC_BUSINESS_CONFIG } from '../config/businessConfig';
+import { Link } from '../router/RouterContext';
+import { useCms } from '../context/CmsContext';
 
-interface HeroProps {
-  onSearchClick?: () => void;
-  onOpenContact?: () => void;
-}
+export const Hero: React.FC = () => {
+  const { homepage, businessConfig, gallery } = useCms();
 
-export const Hero: React.FC<HeroProps> = ({ onSearchClick }) => {
-  const hasPhone = Boolean(TNOC_BUSINESS_CONFIG.phoneRaw);
-  const hasWhatsApp = Boolean(TNOC_BUSINESS_CONFIG.whatsappRaw);
+  // Pick featured photo or fallback to verified day exterior photo
+  const heroPhoto =
+    gallery.find((p) => p.isFeatured && p.isActive)?.imageSrc ||
+    homepage.heroImage ||
+    '/assets/tnoc_facility_day.jpg';
+
+  const title = homepage.heroTitle || 'TNOC MEDICAL DIAGNOSTICS';
+  const subtitle = homepage.heroSubtitle || 'Reliable Medical Diagnostics You Can Trust';
+  const description =
+    homepage.heroDescription ||
+    'Professional clinical laboratory investigations and diagnostic ultrasound services in Msamvu, Morogoro.';
+  const primaryCta = homepage.primaryCtaText || 'View Tests & Prices';
+  const secondaryCta = homepage.secondaryCtaText || 'Find Us on Google Maps';
+  const secondaryLink =
+    homepage.secondaryCtaLink || businessConfig.googleMapsDirectionsUrl;
 
   return (
-    <section id="hero" className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-blue-950 text-white pt-10 pb-16 lg:pt-16 lg:pb-24">
-      {/* Subtle diagnostic grid pattern background */}
-      <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-
-      {/* Decorative ambient glowing accents: Royal Blue & Medical Red */}
-      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-red-600/15 rounded-full blur-3xl pointer-events-none" />
+    <section className="relative bg-gradient-to-b from-blue-50/50 via-white to-white pt-8 pb-16 lg:pt-16 lg:pb-24 overflow-hidden">
+      {/* Decorative subtle medical grid background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-25 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Headlines, Identity & CTAs */}
-          <div className="lg:col-span-7 flex flex-col text-left">
-            {/* Primary Business Identity Tag with Red Pulse Dot */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/90 border border-blue-500/40 text-blue-200 text-xs sm:text-sm font-semibold mb-5 w-fit shadow-inner">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse ring-2 ring-red-400/40" />
-              <span className="tracking-wide">TNOC DIAGNOSTICS – MAABARA YA MSAMVU</span>
-            </div>
-
-            {/* Official Name Callout in Diagnostic Red & Royal Blue */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-1.5 h-4 bg-red-600 rounded-full inline-block" />
-              <p className="text-xs sm:text-sm uppercase tracking-widest text-red-400 font-bold font-display">
-                {TNOC_BUSINESS_CONFIG.businessName}
-              </p>
-            </div>
-
-            {/* Primary Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white font-display leading-[1.15] mb-4">
-              Reliable Medical Diagnostics <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-300 to-blue-300">
-                You Can Trust
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          {/* Left Column: Clinical Presentation & CTAs */}
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+            {/* Locality & Verification Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/70 border border-blue-200/80 text-blue-900 text-xs sm:text-sm font-semibold">
+              <span className="flex h-2 w-2 rounded-full bg-red-600" />
+              <span>{title}</span>
+              <span className="text-blue-400">•</span>
+              <span className="flex items-center gap-1 text-slate-700 font-medium">
+                <MapPin className="w-3.5 h-3.5 text-red-600" />
+                Msamvu, Morogoro
               </span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+              {subtitle}
             </h1>
 
-            {/* Subheadline */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-2xl font-normal leading-relaxed mb-6">
-              Professional laboratory investigations and diagnostic imaging services with an uncompromising focus on clinical accuracy, timely results, and patient-centered care in Msamvu, Morogoro.
+            {/* Supporting Text */}
+            <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+              {description}
             </p>
 
-            {/* Verified Location Card / Local SEO anchor */}
-            <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm max-w-xl mb-7">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-red-600/20 text-red-400 shrink-0 mt-0.5 border border-red-500/30">
-                  <MapPin className="w-4 h-4" />
-                </div>
-                <div className="text-xs sm:text-sm text-slate-300">
-                  <span className="font-semibold text-white">Find Us in Msamvu, Morogoro:</span>
-                  <p className="text-slate-300 mt-0.5">
-                    Search on Google Maps: <strong className="text-blue-300 font-semibold">{TNOC_BUSINESS_CONFIG.googleMapsQuery}</strong>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Action CTAs in Red, Blue, White */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
-              <a
-                href="#laboratory"
-                onClick={onSearchClick}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm sm:text-base font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-600/30 transition-all duration-150 active:scale-[0.98]"
+            {/* Action Buttons */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
+              <Link
+                to="/tests"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-bold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
               >
-                <Search className="w-4 h-4" />
-                <span>View Our Tests</span>
-              </a>
+                <FileSpreadsheet className="w-5 h-5 text-blue-200" />
+                <span>{primaryCta}</span>
+                <ArrowRight className="w-4 h-4 text-blue-200 ml-1" />
+              </Link>
 
               <a
-                href={TNOC_BUSINESS_CONFIG.googleMapsSearchUrl}
+                href={secondaryLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm sm:text-base font-semibold text-white bg-blue-900/80 hover:bg-blue-800 border border-blue-500/40 rounded-xl transition-all duration-150 shadow-md backdrop-blur-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-slate-700 hover:text-blue-900 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl shadow-xs transition-colors"
               >
-                <MapPin className="w-4 h-4 text-red-400" />
-                <span>Find Us on Google Maps</span>
+                <MapPin className="w-5 h-5 text-red-600" />
+                <span>{secondaryCta}</span>
               </a>
-
-              {/* Dynamic Call Button */}
-              {hasPhone ? (
-                <a
-                  href={`tel:${TNOC_BUSINESS_CONFIG.phoneRaw}`}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 border border-white/20 rounded-xl transition-colors"
-                >
-                  <Phone className="w-4 h-4 text-red-400" />
-                  <span>Call TNOC</span>
-                </a>
-              ) : (
-                <a
-                  href="#contact"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 border border-white/20 rounded-xl transition-colors"
-                >
-                  <Phone className="w-4 h-4 text-red-400" />
-                  <span>Call / Contact Info</span>
-                </a>
-              )}
-
-              {/* Dynamic WhatsApp Button */}
-              {hasWhatsApp && (
-                <a
-                  href={`https://wa.me/${TNOC_BUSINESS_CONFIG.whatsappRaw}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold text-emerald-300 bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-700/60 rounded-xl transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4 text-emerald-400" />
-                  <span>WhatsApp Us</span>
-                </a>
-              )}
             </div>
 
-            {/* Trust Badges Bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-white/10">
+            {/* Clinical Highlights Strip */}
+            <div className="pt-6 border-t border-slate-200/80 grid grid-cols-2 sm:grid-cols-3 gap-4 text-left">
               <div className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-red-500 shrink-0" />
-                <span className="text-xs sm:text-sm text-slate-300 font-medium">Accurate Diagnostic Protocols</span>
+                <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                  <FlaskConical className="w-4 h-4 text-blue-700" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Clinical Pathology</div>
+                  <div className="text-xs text-slate-500">Automated Analyzers</div>
+                </div>
               </div>
+
               <div className="flex items-center gap-2.5">
-                <Clock className="w-4 h-4 text-blue-400 shrink-0" />
-                <span className="text-xs sm:text-sm text-slate-300 font-medium">Timely & Same-Day Results</span>
+                <div className="w-9 h-9 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
+                  <Activity className="w-4 h-4 text-red-600" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Diagnostic Ultrasound</div>
+                  <div className="text-xs text-slate-500">Immediate Reports</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-red-400 shrink-0" />
-                <span className="text-xs sm:text-sm text-slate-300 font-medium">Strict Patient Privacy</span>
+
+              <div className="flex items-center gap-2.5 col-span-2 sm:col-span-1">
+                <div className="w-9 h-9 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                  <Clock className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Same-Day Results</div>
+                  <div className="text-xs text-slate-500">Fast & Confidential</div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Facility Office Photo & Showcase */}
+          {/* Right Column: Authentic Facility Photo Presentation */}
           <div className="lg:col-span-5">
-            <div className="relative rounded-2xl bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 p-2.5 border border-white/20 shadow-2xl shadow-black/50 group">
-              {/* Facility Office Photo Showcase */}
-              <div className="relative h-80 sm:h-96 rounded-xl overflow-hidden bg-slate-950 flex flex-col justify-between p-4 sm:p-5 text-white">
-                {/* Real Office Photo background */}
+            <div className="relative mx-auto max-w-md lg:max-w-none">
+              {/* Photo Frame Container */}
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900 ring-1 ring-slate-200/60">
                 <img
-                  src={TNOC_BUSINESS_CONFIG.officePhotoPath || '/assets/office-photo.jpg'}
-                  alt="TNOC Medical Diagnostic Facility Office and Reception in Msamvu, Morogoro"
-                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                  referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    // Fallback to gradient if image fails
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                  }}
+                  src={heroPhoto}
+                  alt="TNOC Medical Diagnostic Facility building in Msamvu, Morogoro, Tanzania"
+                  className="w-full h-72 sm:h-96 lg:h-[420px] object-cover object-center"
+                  loading="eager"
                 />
 
-                {/* Subtle dark gradient overlay to ensure text contrast */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/60 pointer-events-none" />
-
-                {/* Top Badge: Verified Facility */}
-                <div className="relative z-10 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600/90 text-white border border-white/20 text-xs font-bold shadow-sm backdrop-blur-md">
-                    <Sparkles className="w-3.5 h-3.5 text-white" />
-                    <span>Official Facility Photo</span>
-                  </span>
-                  <span className="text-[11px] font-bold text-white bg-blue-900/90 px-2.5 py-1 rounded-full border border-blue-400/30 backdrop-blur-sm">
-                    MSAMVU • MOROGORO
-                  </span>
-                </div>
-
-                {/* Bottom card content */}
-                <div className="relative z-10 pt-4 space-y-2 bg-slate-950/80 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 p-4 rounded-b-xl border-t border-white/10 backdrop-blur-md">
+                {/* Subtle Facility Badge */}
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent p-5 text-white">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-base sm:text-lg font-bold text-white font-display flex items-center gap-2">
-                        <span>TNOC Diagnostics</span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-600/20 text-red-300 border border-red-500/30">
-                          Maabara ya Msamvu
-                        </span>
-                      </h2>
-                      <p className="text-xs text-slate-300 mt-0.5">
-                        Verified office building & laboratory entrance in Msamvu
-                      </p>
+                      <div className="text-xs font-medium text-red-400 uppercase tracking-wider">
+                        Verified Facility
+                      </div>
+                      <div className="text-base font-bold text-white">
+                        TNOC Diagnostics (Maabara ya Msamvu)
+                      </div>
+                      <div className="text-xs text-slate-300 flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3 text-red-400" />
+                        Msamvu Area, Morogoro, Tanzania
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs">
-                    <span className="text-slate-400 text-[11px] flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-red-400" />
-                      Msamvu, Morogoro, Tanzania
-                    </span>
-                    <a
-                      href="#gallery"
-                      className="inline-flex items-center gap-1 text-blue-300 hover:text-white font-semibold transition-colors"
+                    <Link
+                      to="/gallery"
+                      className="px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-lg text-xs font-semibold text-white transition-colors"
                     >
-                      <span>Explore Gallery</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-red-400" />
-                    </a>
+                      View Gallery
+                    </Link>
                   </div>
+                </div>
+              </div>
+
+              {/* Verified Trust Badge overlay */}
+              <div className="hidden sm:flex absolute -top-4 -right-4 bg-white rounded-xl shadow-lg border border-slate-200 p-3 items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Accurate & Certified</div>
+                  <div className="text-[11px] text-slate-500">Quality Diagnostic Standards</div>
                 </div>
               </div>
             </div>

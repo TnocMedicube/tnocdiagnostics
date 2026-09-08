@@ -1,17 +1,16 @@
 import React from 'react';
 import {
   MapPin,
-  Phone,
-  MessageCircle,
   Clock,
   ExternalLink,
   ShieldCheck,
-  HeartPulse,
 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
-import { TNOC_BUSINESS_CONFIG } from '../config/businessConfig';
+import { Link } from '../router/RouterContext';
+import { useCms } from '../context/CmsContext';
 
 export const Footer: React.FC = () => {
+  const { businessConfig } = useCms();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -22,190 +21,151 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-4 space-y-4">
             <BrandLogo variant="footer" />
 
-            <p className="text-xs uppercase tracking-widest text-red-500 font-bold font-display">
-              TNOC MEDICAL DIAGNOSTIC FACILITY
+            <p className="text-xs uppercase tracking-widest text-red-500 font-bold">
+              TNOC MEDICAL DIAGNOSTICS
             </p>
 
             <p className="text-sm text-slate-300 font-medium">
-              &ldquo;Professional Diagnostic Services You Can Trust.&rdquo;
+              &ldquo;Reliable Medical Diagnostics You Can Trust&rdquo;
             </p>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              Providing reliable clinical laboratory investigations and diagnostic ultrasound examinations in Msamvu, Morogoro, Tanzania.
+              Professional clinical laboratory investigations and diagnostic ultrasound services in Msamvu, Morogoro, Tanzania.
             </p>
 
             <div className="pt-2 flex flex-col gap-1.5 text-xs text-slate-400">
               <span className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                <span>Msamvu Area, Morogoro, Tanzania</span>
+                <span>{businessConfig.address}, {businessConfig.city}</span>
               </span>
               <span className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span>Routine Pathology & Sonography</span>
+                <span>Mon – Fri: 07:30 – 19:00 | Sat: 08:00 – 17:00</span>
               </span>
             </div>
           </div>
 
           {/* Quick Navigation Links */}
-          <div className="lg:col-span-2 space-y-3">
+          <div className="lg:col-span-3 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Navigation
+              Quick Navigation
             </h4>
             <ul className="space-y-2 text-xs text-slate-300">
               <li>
-                <a href="#hero" className="hover:text-red-400 transition-colors">
+                <Link to="/" className="hover:text-blue-400 transition-colors">
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#about" className="hover:text-red-400 transition-colors">
-                  About Us
-                </a>
+                <Link to="/services" className="hover:text-blue-400 transition-colors">
+                  Diagnostic Services
+                </Link>
               </li>
               <li>
-                <a href="#laboratory" className="hover:text-red-400 transition-colors">
-                  Laboratory Tests
-                </a>
+                <Link to="/tests" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+                  Tests & Prices Catalogue
+                </Link>
               </li>
               <li>
-                <a href="#imaging" className="hover:text-red-400 transition-colors">
-                  Imaging Services
-                </a>
+                <Link to="/about" className="hover:text-blue-400 transition-colors">
+                  About TNOC Diagnostics
+                </Link>
               </li>
               <li>
-                <a href="#why-tnoc" className="hover:text-red-400 transition-colors">
-                  Why Choose TNOC
-                </a>
+                <Link to="/gallery" className="hover:text-blue-400 transition-colors">
+                  Facility Photo Gallery
+                </Link>
               </li>
               <li>
-                <a href="#gallery" className="hover:text-red-400 transition-colors">
-                  Facility Gallery
-                </a>
+                <Link to="/patient-info" className="hover:text-blue-400 transition-colors">
+                  Patient Information & Prep
+                </Link>
               </li>
               <li>
-                <a href="#location" className="hover:text-red-400 transition-colors">
-                  Location & Map
-                </a>
+                <Link to="/location" className="hover:text-blue-400 transition-colors">
+                  Location & Directions
+                </Link>
               </li>
               <li>
-                <a href="#contact" className="hover:text-red-400 transition-colors">
-                  Contact Us
-                </a>
+                <Link to="/contact" className="hover:text-blue-400 transition-colors">
+                  Contact & Inquiries
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Laboratory Tests Disciplines */}
+          {/* Diagnostic Modalities */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Laboratory Disciplines
+              Diagnostic Modalities
             </h4>
-            <ul className="space-y-1.5 text-xs text-slate-400">
+            <ul className="space-y-2 text-xs text-slate-300">
               <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Hematology & Full Blood Picture (FBP)
-                </a>
+                <Link to="/services?category=laboratory" className="hover:text-blue-400 transition-colors">
+                  Automated Hematology (FBP/CBC)
+                </Link>
               </li>
               <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Clinical Chemistry (LFT, RFT, Glucose)
-                </a>
+                <Link to="/services?category=laboratory" className="hover:text-blue-400 transition-colors">
+                  Clinical Chemistry (Liver & Kidney)
+                </Link>
               </li>
               <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Microbiology Culture & Sensitivity
-                </a>
+                <Link to="/services?category=laboratory" className="hover:text-blue-400 transition-colors">
+                  Medical Parasitology & Malaria
+                </Link>
               </li>
               <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Parasitology & Malaria Testing
-                </a>
+                <Link to="/services?category=ultrasound" className="hover:text-blue-400 transition-colors">
+                  Abdominal & Pelvic Ultrasound
+                </Link>
               </li>
               <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Complete Urinalysis & Dipstick
-                </a>
+                <Link to="/services?category=ultrasound" className="hover:text-blue-400 transition-colors">
+                  Obstetric & Antenatal Fetal Scans
+                </Link>
               </li>
               <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Endocrinology & Thyroid Hormones
-                </a>
-              </li>
-              <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Fertility & Semen Analysis
-                </a>
-              </li>
-              <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Infectious Disease Screening
-                </a>
-              </li>
-              <li>
-                <a href="#laboratory" className="hover:text-red-300 transition-colors">
-                  Serology & Immunology
-                </a>
+                <Link to="/patient-info#faqs" className="hover:text-blue-400 transition-colors">
+                  Frequently Asked Questions
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Google Maps & Location Card */}
-          <div className="lg:col-span-3 space-y-3">
+          {/* Locality & Verification Notice */}
+          <div className="lg:col-span-2 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Find on Google Maps
+              Google Maps
             </h4>
-            <p className="text-xs text-slate-300">
-              Search Google Maps directly on your smartphone:
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Verify our facility listing or get direct driving navigation:
             </p>
+            <a
+              href={businessConfig.googleMapsSearchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-900/60 hover:bg-blue-800 border border-blue-700/60 text-xs font-medium text-white transition-colors"
+            >
+              <span>TNOC on Maps</span>
+              <ExternalLink className="w-3.5 h-3.5 text-red-400" />
+            </a>
 
-            <div className="p-3 rounded-xl bg-slate-900 border border-white/10 text-xs font-mono text-red-400 font-semibold select-all break-words">
-              {TNOC_BUSINESS_CONFIG.googleMapsQuery}
-            </div>
-
-            <div className="pt-2 flex flex-col gap-2">
-              <a
-                href={TNOC_BUSINESS_CONFIG.googleMapsDirectionsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-colors"
-              >
-                <MapPin className="w-3.5 h-3.5" />
-                <span>Get Directions to Msamvu</span>
-              </a>
-
-              <a
-                href={TNOC_BUSINESS_CONFIG.googleMapsSearchUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-white/10 hover:bg-white/15 border border-white/15 rounded-xl transition-colors"
-              >
-                <span>View Google Maps Listing</span>
-                <ExternalLink className="w-3 h-3 text-slate-400" />
-              </a>
+            <div className="pt-2 text-[11px] text-slate-500 flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>Verified Facility in Msamvu</span>
             </div>
           </div>
         </div>
 
-        {/* Medical Clinical Disclaimer (Crucial Requirement) */}
-        <div className="py-6 border-b border-white/10">
-          <div className="p-4 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-slate-400 flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-            <p className="leading-relaxed">
-              <strong className="text-slate-200">Medical Diagnostic Disclaimer:</strong>{' '}
-              Diagnostic tests are performed to support clinical assessment and should be interpreted in the appropriate clinical context. Laboratory and imaging results should be reviewed by a qualified healthcare professional. This website does not provide online medical diagnosis or individualized prescription therapy.
-            </p>
-          </div>
-        </div>
+        {/* Bottom Legal & Location Information */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+          <p>© {currentYear} TNOC Medical Diagnostic Facility (Maabara ya Msamvu). All rights reserved.</p>
 
-        {/* Bottom Copyright & Local SEO Footer Bar */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p>
-            © {currentYear} <strong>TNOC Medical Diagnostic Facility</strong> (TNOC Diagnostics – Maabara ya Msamvu). All Rights Reserved.
-          </p>
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
+          <div className="flex items-center gap-4">
             <span>Msamvu, Morogoro, Tanzania</span>
             <span>•</span>
-            <span>Clinical Laboratory & Diagnostic Imaging</span>
+            <span className="text-slate-400">Quality Diagnostic Care</span>
           </div>
         </div>
       </div>
